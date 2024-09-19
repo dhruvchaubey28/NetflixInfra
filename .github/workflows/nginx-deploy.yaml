@@ -17,6 +17,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Copy Nginx config files
+        run: |
+          scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/nginx-config/
+
+      - name: Move Nginx config files
+        run: |
+          ssh -o StrictHostKeyChecking=no -i "mykey.pem" ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo mv /tmp/nginx-config/* /etc/nginx/conf.d/ && sudo systemctl restart nginx'
+
+
       - name: Set up SSH key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > mykey.pem
