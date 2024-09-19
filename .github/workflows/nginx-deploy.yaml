@@ -17,18 +17,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
-
       - name: Copy Nginx config files
         run: |
-          echo "$SSH_PRIVATE_KEY" > my_key.pem
-          chmod 600 my_key.pem
-          scp -o StrictHostKeyChecking=no -i "my_key.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/etc/nginx/conf.d/
+          echo "$SSH_PRIVATE_KEY" > mykey.pem
+          chmod 600 mykey.pem
+          scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/etc/nginx/conf.d/
 
       - name: Restart Nginx
         run: |
