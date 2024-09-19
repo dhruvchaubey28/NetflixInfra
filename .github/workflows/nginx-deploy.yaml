@@ -17,12 +17,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > mykey.pem
+          chmod 600 mykey.pem
+          eval "$(ssh-agent -s)"
+          ssh-add mykey.pem
+
       - name: Copy Nginx config files
         run: |
-          echo "$SSH_PRIVATE_KEY" > mykey.pem
-          chmod 600 mykey.pem
           scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/etc/nginx/conf.d/
 
       - name: Restart Nginx
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo systemctl restart nginx'
+          ssh -o StrictHostKeyChecking=no -i "mykey.pem" ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo systemctl restart nginx'
