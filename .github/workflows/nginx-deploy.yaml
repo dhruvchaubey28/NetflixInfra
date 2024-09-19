@@ -1,0 +1,35 @@
+name: Deploy Nginx Configuration
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+  EC2_USER: ubuntu
+  EC2_HOST: 54.177.164.202
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+
+      - name: Copy Nginx config files
+        run: |
+          echo $SSH_PRIVATE_KEY > my_key.pem
+          chmod 600 my_key.pem
+          scp -o StrictHostKeyChecking=no -i "my_key.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/etc/nginx/conf.d/
+
+      - name: Restart Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo systemctl restart nginx'
