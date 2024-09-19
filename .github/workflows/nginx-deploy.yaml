@@ -26,7 +26,7 @@ jobs:
 
       - name: Copy Nginx config files
         run: |
-          echo $SSH_PRIVATE_KEY > my_key.pem
+          echo "$SSH_PRIVATE_KEY" > my_key.pem
           chmod 600 my_key.pem
           scp -o StrictHostKeyChecking=no -i "my_key.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/etc/nginx/conf.d/
 
