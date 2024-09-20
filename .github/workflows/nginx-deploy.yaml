@@ -17,14 +17,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Copy Nginx config files
+      - name: Install Nginx
         run: |
-          scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/nginx-config/
+          sudo apt-get update
+          sudo apt-get install -y nginx
 
-      - name: Move Nginx config files
+      - name: Test Nginx Configuration
         run: |
-          ssh -o StrictHostKeyChecking=no -i "mykey.pem" ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo mv /tmp/nginx-config/* /etc/nginx/conf.d/ && sudo systemctl restart nginx'
-
+          sudo nginx -t
 
       - name: Set up SSH key
         run: |
@@ -35,8 +35,8 @@ jobs:
 
       - name: Copy Nginx config files
         run: |
-          scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/etc/nginx/conf.d/
+          scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/nginx-config/
 
-      - name: Restart Nginx
+      - name: Move Nginx config files and Restart Nginx
         run: |
-          ssh -o StrictHostKeyChecking=no -i "mykey.pem" ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo systemctl restart nginx'
+          ssh -o StrictHostKeyChecking=no -i "mykey.pem" ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'sudo mv /tmp/nginx-config/* /etc/nginx/conf.d/ && sudo nginx -t && sudo systemctl restart nginx'
