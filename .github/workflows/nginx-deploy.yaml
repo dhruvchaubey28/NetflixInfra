@@ -8,7 +8,7 @@ on:
 env:
   PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
   EC2_USER: ubuntu
-  EC2_HOST: 54.177.164.202
+  EC2_HOST: 54.153.122.126
 
 jobs:
   deploy:
