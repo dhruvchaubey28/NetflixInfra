@@ -33,6 +33,10 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add mykey.pem
 
+      - name: Create Nginx Config Directory on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i "mykey.pem" ${{ env.EC2_USER }}@${{ env.EC2_HOST }} 'mkdir -p /tmp/nginx-config/'
+
       - name: Copy Nginx config files
         run: |
           scp -o StrictHostKeyChecking=no -i "mykey.pem" -r ./nginx-config/* ${{ env.EC2_USER }}@${{ env.EC2_HOST }}:/tmp/nginx-config/
